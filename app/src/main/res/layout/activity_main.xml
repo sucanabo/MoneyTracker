@@ -1,18 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<FrameLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MainActivity">
-    <TextView
+    <androidx.core.widget.NestedScrollView
+            android:id="@+id/container"
+            android:visibility="visible"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        <LinearLayout
+                android:id="@+id/moneyTrackContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                <TextView
+                        android:id="@+id/tvExpense"
+                        android:layout_width="0dp"
+                        android:layout_height="150dp"
+                        android:layout_weight="1"
+                        android:background="@color/blue"
+                        android:textColor="@color/white"
+                        android:text="@string/expense"
+                        android:textSize="25sp"
+                        android:gravity="center"
+                />
+                <TextView
+                        android:id="@+id/tvAddMoney"
+                        android:layout_width="0dp"
+                        android:layout_height="150dp"
+                        android:layout_weight="1"
+                        android:background="@color/yellow"
+                        android:textColor="@color/white"
+                        android:text="@string/add_money"
+                        android:textSize="25sp"
+                        android:gravity="center"
+                />
+
+            </LinearLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvTransaction"
+                    tools:listitem="@layout/transaction_item"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+            />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+    <ProgressBar
+            android:id="@+id/loading"
+            android:visibility="visible"
+            android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hello World!"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+    />
+    <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textSize="20sp"
+            android:visibility="invisible"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout
+ >

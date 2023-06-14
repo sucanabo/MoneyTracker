@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">MoneyTracker</string>
+    <string name="expense">Expense</string>
+    <string name="add_money">Add Money</string>
 </resources>
