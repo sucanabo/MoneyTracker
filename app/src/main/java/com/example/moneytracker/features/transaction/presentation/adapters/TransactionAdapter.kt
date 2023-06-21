@@ -1,4 +1,4 @@
-package com.example.moneytracker.features.transaction.presentation
+package com.example.moneytracker.features.transaction.presentation.adapters
 
 import android.annotation.SuppressLint
 import android.graphics.Color

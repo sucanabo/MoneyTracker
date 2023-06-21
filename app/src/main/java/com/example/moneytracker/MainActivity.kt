@@ -1,9 +1,13 @@
 package com.example.moneytracker
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -13,7 +17,9 @@ import com.example.moneytracker.data.local.MoneyTrackerDb
 import com.example.moneytracker.features.transaction.data.TransactionRepository
 import com.example.moneytracker.features.transaction.domain.model.TransactionModel
 import com.example.moneytracker.features.transaction.domain.model.TransactionType
-import com.example.moneytracker.features.transaction.presentation.TransactionAdapter
+import com.example.moneytracker.features.transaction.presentation.adapters.TransactionAdapter
+import com.example.moneytracker.features.transaction.presentation.add.TransactionAddActivity
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity(), CoroutineScope {
@@ -30,9 +36,19 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val linearLayout = LinearLayoutManager(applicationContext)
         transactionAdapter = TransactionAdapter(repo = transactionRepository)
 
+        initTransaction()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
+
+    }
+
+    private fun initTransaction() {
+        val linearLayout = LinearLayoutManager(applicationContext)
         val decoration = DividerItemDecoration(this, linearLayout.orientation)
 
         ContextCompat.getDrawable(this, R.drawable.bg_divider)
@@ -42,17 +58,19 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             addItemDecoration(decoration)
 
         }
+        findViewById<ExtendedFloatingActionButton>(R.id.fab_add_transaction).setOnClickListener{
+            val intent = Intent(this,TransactionAddActivity::class.java)
+            activityTransactionAddResult.launch(intent)
+        }
         loadTransactionFromDb()
-
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        job.cancel()
-
+private val activityTransactionAddResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
+    result ->
+    if(result.resultCode == Activity.RESULT_OK){
+        Toast.makeText(this, "result from ADDTRANSACTION", Toast.LENGTH_SHORT).show()
     }
-
-    fun loadTransactionFromDb() {
+}
+    private fun loadTransactionFromDb() {
         launch {
             delay(2000L)
             val list = transactionRepository.selectAll()

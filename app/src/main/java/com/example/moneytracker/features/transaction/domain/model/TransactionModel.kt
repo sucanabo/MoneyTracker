@@ -16,6 +16,12 @@ enum class TransactionType(val value: String) {
     }
 }
 
+fun TransactionType.getTitle(): String = when(this){
+    TransactionType.ADD -> "add money"
+    TransactionType.EXPENSE -> "expense"
+    else -> ""
+}
+
 data class TransactionModel(
     val id: Int,
     val cateId: Int,
