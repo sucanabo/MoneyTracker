@@ -1,12 +1,10 @@
 package com.example.moneytracker.features.transaction.presentation
 
 import android.app.Activity
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.widget.Button
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.example.moneytracker.R
 import com.example.moneytracker.data.MoneyTrackerDb
@@ -30,7 +28,6 @@ class TransactionInputActivity : AppCompatActivity(), CoroutineScope {
         MoneyTrackerRepository.create(db = MoneyTrackerDb(applicationContext))
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_transaction)
@@ -41,7 +38,8 @@ class TransactionInputActivity : AppCompatActivity(), CoroutineScope {
         val tDate = findViewById<ExtendedEditText>(R.id.tfe_tran_date)
         val tNote = findViewById<ExtendedEditText>(R.id.tfe_tran_note)
 
-        val data: TransactionModel? = intent.getSerializableExtra("model", TransactionModel::class.java).also {
+        val initData = intent.getSerializableExtra("model") as TransactionModel?
+        initData.let {
             if (it != null) {
                 title = "Edit Transaction"
                 tranType = it.type
@@ -49,38 +47,35 @@ class TransactionInputActivity : AppCompatActivity(), CoroutineScope {
                 tTitle.setText(it.title)
                 tDate.setText(it.date)
                 it.note?.let { noteTxt -> tNote.setText(noteTxt) }
-                return@also
+                return@let
             }
             title = "New Transaction"
         }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
 
-        findViewById<StickySwitch>(R.id.sw_tran).setA(object : StickySwitch.OnSelectedChangeListener {
-            override fun onSelectedChange(direction: StickySwitch.Direction, text: String) {
-                tranType = when (direction) {
-                    StickySwitch.Direction.LEFT -> TransactionType.EXPENSE
-                    StickySwitch.Direction.RIGHT -> TransactionType.ADD
+        findViewById<StickySwitch>(R.id.sw_tran).apply {
+            setDirection(when(tranType){
+                TransactionType.ADD -> StickySwitch.Direction.RIGHT
+                else -> StickySwitch.Direction.LEFT
+            })
+            setA(object : StickySwitch.OnSelectedChangeListener {
+                override fun onSelectedChange(direction: StickySwitch.Direction, text: String) {
+                    tranType = when (direction) {
+                        StickySwitch.Direction.LEFT -> TransactionType.EXPENSE
+                        StickySwitch.Direction.RIGHT -> TransactionType.ADD
+                    }
                 }
-            }
-        })
+            })
+        }
         findViewById<Button>(R.id.btn_tran_save).setOnClickListener {
-            val tAmount = findViewById<ExtendedEditText>(R.id.tfe_tran_amount).text.toString()
-            val tTitle = findViewById<ExtendedEditText>(R.id.tfe_tran_title).text.toString()
-            val tDate = findViewById<ExtendedEditText>(R.id.tfe_tran_date).text.toString()
-            val tNote = findViewById<ExtendedEditText>(R.id.tfe_tran_note).text.let {
-                if (it.isNullOrBlank()) return@let null
-                return@let it.toString()
-            }
-
-            Log.d("Debug", "amount ${tAmount.toFloat()}")
 
             launch {
                 val model = TransactionModel(
-                    money = tAmount.toFloat(),
-                    title = tTitle,
-                    date = tDate,
-                    note = tNote,
+                    money = tAmount.text.toString().toFloat(),
+                    title = tTitle.text.toString(),
+                    date = tDate.text.toString(),
+                    note = tNote.text.let { if(it.isNullOrBlank()) null else it.toString() },
                     type = tranType
                 )
                 Log.d("Debug", model.toString())

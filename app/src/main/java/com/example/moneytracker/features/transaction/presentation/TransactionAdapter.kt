@@ -1,6 +1,6 @@
 package com.example.moneytracker.features.transaction.presentation
 
-import android.annotation.SuppressLint
+import android.content.Intent
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -14,17 +14,11 @@ import com.example.moneytracker.data.MoneyTrackerRepository
 import com.example.moneytracker.features.transaction.data.TransactionModel
 import com.example.moneytracker.features.transaction.data.TransactionType
 
-interface TransactionItemClick {
-    fun onClick(view: View?, position: Int, isLongClick: Boolean)
-}
-
 class TransactionAdapter(
     private var data: MutableList<TransactionModel> = mutableListOf(),
     private val repo: MoneyTrackerRepository,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-
-    @SuppressLint("NotifyDataSetChanged")
     fun setData(list: MutableList<TransactionModel>) {
         this.data.clear()
         this.data.addAll(list)
@@ -55,16 +49,20 @@ class TransactionAdapter(
                     }
                 }
                 it.findViewById<TextView>(R.id.tvTransactionUnit).text = data.unit
+                it.setOnClickListener(this@TransactionViewHolder)
             }
 
         }
 
         override fun onClick(p0: View?) {
-            //itemClick.onClick(p0, adapterPosition,false)
+            val intent = Intent(itemView.context, TransactionInputActivity::class.java).apply {
+                putExtra("model", this@TransactionAdapter.data[adapterPosition])
+            }
+            itemView.context.startActivity(intent)
         }
 
         override fun onLongClick(p0: View?): Boolean {
-            //itemClick.onClick(p0,adapterPosition,true)
+
             return true
         }
     }
@@ -81,4 +79,5 @@ class TransactionAdapter(
             holder.bind(data[position])
         }
     }
+
 }
