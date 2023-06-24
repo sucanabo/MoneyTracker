@@ -1,22 +1,28 @@
-package com.example.moneytracker.features.transaction.presentation.adapters
+package com.example.moneytracker.features.transaction.presentation
 
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnLongClickListener
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.moneytracker.R
-import com.example.moneytracker.features.transaction.data.TransactionRepository
-import com.example.moneytracker.features.transaction.domain.model.TransactionModel
-import com.example.moneytracker.features.transaction.domain.model.TransactionType
+import com.example.moneytracker.data.MoneyTrackerRepository
+import com.example.moneytracker.features.transaction.data.TransactionModel
+import com.example.moneytracker.features.transaction.data.TransactionType
+
+interface TransactionItemClick {
+    fun onClick(view: View?, position: Int, isLongClick: Boolean)
+}
 
 class TransactionAdapter(
     private var data: MutableList<TransactionModel> = mutableListOf(),
-    private val repo: TransactionRepository,
+    private val repo: MoneyTrackerRepository,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
 
     @SuppressLint("NotifyDataSetChanged")
     fun setData(list: MutableList<TransactionModel>) {
@@ -25,7 +31,10 @@ class TransactionAdapter(
         notifyDataSetChanged()
     }
 
-    inner class TransactionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+
+    inner class TransactionViewHolder(view: View) : RecyclerView.ViewHolder(view),
+        View.OnClickListener,
+        OnLongClickListener {
         fun bind(data: TransactionModel) {
             itemView.let {
                 it.findViewById<TextView>(R.id.tvTransactionTitle).text = data.title
@@ -39,7 +48,7 @@ class TransactionAdapter(
 
                         TransactionType.ADD -> {
                             text = "+ $${data.money}"
-                            setTextColor(ResourcesCompat.getColor(resources,R.color.green,null))
+                            setTextColor(ResourcesCompat.getColor(resources, R.color.green, null))
                         }
 
                         else -> {}
@@ -48,6 +57,15 @@ class TransactionAdapter(
                 it.findViewById<TextView>(R.id.tvTransactionUnit).text = data.unit
             }
 
+        }
+
+        override fun onClick(p0: View?) {
+            //itemClick.onClick(p0, adapterPosition,false)
+        }
+
+        override fun onLongClick(p0: View?): Boolean {
+            //itemClick.onClick(p0,adapterPosition,true)
+            return true
         }
     }
 

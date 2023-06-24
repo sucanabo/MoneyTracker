@@ -3,6 +3,7 @@ package com.example.moneytracker
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -13,12 +14,12 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.moneytracker.data.local.MoneyTrackerDb
-import com.example.moneytracker.features.transaction.data.TransactionRepository
-import com.example.moneytracker.features.transaction.domain.model.TransactionModel
-import com.example.moneytracker.features.transaction.domain.model.TransactionType
-import com.example.moneytracker.features.transaction.presentation.adapters.TransactionAdapter
-import com.example.moneytracker.features.transaction.presentation.add.TransactionAddActivity
+import com.example.moneytracker.data.MoneyTrackerDb
+import com.example.moneytracker.data.MoneyTrackerRepository
+import com.example.moneytracker.features.transaction.data.TransactionModel
+import com.example.moneytracker.features.transaction.data.TransactionType
+import com.example.moneytracker.features.transaction.presentation.TransactionAdapter
+import com.example.moneytracker.features.transaction.presentation.TransactionInputActivity
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import kotlinx.coroutines.*
 
@@ -27,8 +28,8 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     override val coroutineContext
         get() = job + Dispatchers.Main
 
-    private val transactionRepository: TransactionRepository by lazy {
-        TransactionRepository(database = MoneyTrackerDb(applicationContext))
+    private val repository: MoneyTrackerRepository by lazy {
+        MoneyTrackerRepository.create(db = MoneyTrackerDb(applicationContext))
     }
 
     private lateinit var transactionAdapter: TransactionAdapter
@@ -36,7 +37,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        transactionAdapter = TransactionAdapter(repo = transactionRepository)
+        transactionAdapter = TransactionAdapter(repo = repository)
 
         initTransaction()
     }
@@ -59,21 +60,25 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
         }
         findViewById<ExtendedFloatingActionButton>(R.id.fab_add_transaction).setOnClickListener{
-            val intent = Intent(this,TransactionAddActivity::class.java)
+            val intent = Intent(this, TransactionInputActivity::class.java)
             activityTransactionAddResult.launch(intent)
         }
-        loadTransactionFromDb()
+        loadTransactionFromDb(true)
     }
 private val activityTransactionAddResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
     result ->
+    Log.d("debug", "result code ${result.resultCode}")
     if(result.resultCode == Activity.RESULT_OK){
         Toast.makeText(this, "result from ADDTRANSACTION", Toast.LENGTH_SHORT).show()
+        loadTransactionFromDb(false)
     }
 }
-    private fun loadTransactionFromDb() {
+    private fun loadTransactionFromDb(enableDelay: Boolean = false) {
         launch {
-            delay(2000L)
-            val list = transactionRepository.selectAll()
+            if(enableDelay){
+                delay(2000L)
+            }
+            val list = repository.selectAll()
             withContext(Dispatchers.Main) {
                 if (list.isEmpty()) {
                     displayEmptyTransaction()

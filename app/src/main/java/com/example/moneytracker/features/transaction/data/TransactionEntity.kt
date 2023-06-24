@@ -1,4 +1,4 @@
-package com.example.moneytracker.features.transaction.data.entity
+package com.example.moneytracker.features.transaction.data
 
 object TransactionEntity {
     const val TABLE_NAME = "transactions"

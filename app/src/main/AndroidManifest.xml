@@ -12,7 +12,7 @@
             android:theme="@style/Theme.MoneyTracker"
             tools:targetApi="31">
         <activity
-                android:name=".features.transaction.presentation.add.TransactionAddActivity"
+                android:name=".features.transaction.presentation.TransactionInputActivity"
                 android:exported="false"/>
         <activity
                 android:name=".MainActivity"

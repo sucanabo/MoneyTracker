@@ -1,4 +1,6 @@
-package com.example.moneytracker.features.transaction.domain.model
+package com.example.moneytracker.features.transaction.data
+
+import java.io.Serializable
 
 enum class TransactionType(val value: String) {
     EXPENSE("E"),
@@ -22,13 +24,13 @@ fun TransactionType.getTitle(): String = when(this){
     else -> ""
 }
 
-data class TransactionModel(
-    val id: Int,
-    val cateId: Int,
+class TransactionModel (
+    val id: Int = 0,
+    val cateId: Int? = null,
     val type: TransactionType,
     val title: String,
     val money: Float,
-    val unit: String,
+    val unit: String? = null,
     val date: String,
     val note: String? = null,
-)
+): Serializable

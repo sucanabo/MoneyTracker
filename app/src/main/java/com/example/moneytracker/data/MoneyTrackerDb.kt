@@ -1,4 +1,4 @@
-package com.example.moneytracker.data.local
+package com.example.moneytracker.data
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
