@@ -20,7 +20,6 @@ open class MoneyTrackerRepository(private val database: MoneyTrackerDb) {
     suspend fun insert(model: TransactionModel):Unit = withContext(Dispatchers.IO) {
         val db = database.writableDatabase
         ContentValues().apply {
-            put(TransactionEntity.COL_ID, model.id)
             put(TransactionEntity.COL_CATE_ID, model.cateId)
             put(TransactionEntity.COL_TYPE, model.type.value)
             put(TransactionEntity.COL_TITLE, model.title)

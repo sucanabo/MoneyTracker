@@ -18,6 +18,7 @@ import com.example.moneytracker.data.MoneyTrackerDb
 import com.example.moneytracker.data.MoneyTrackerRepository
 import com.example.moneytracker.features.transaction.data.TransactionModel
 import com.example.moneytracker.features.transaction.data.TransactionType
+import com.example.moneytracker.features.transaction.presentation.OnClickItem
 import com.example.moneytracker.features.transaction.presentation.TransactionAdapter
 import com.example.moneytracker.features.transaction.presentation.TransactionInputActivity
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
@@ -37,7 +38,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        transactionAdapter = TransactionAdapter(repo = repository)
+        transactionAdapter = TransactionAdapter(
+            repo = repository,
+            onClickItem = transactionItemClick
+        )
 
         initTransaction()
     }
@@ -46,6 +50,14 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         super.onDestroy()
         job.cancel()
 
+    }
+
+    private val transactionItemClick: OnClickItem = {
+        Intent(this, TransactionInputActivity::class.java).apply {
+            putExtra("model", it)
+        }.also {
+            activityTransactionAddResult.launch(it)
+        }
     }
 
     private fun initTransaction() {
@@ -59,23 +71,25 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             addItemDecoration(decoration)
 
         }
-        findViewById<ExtendedFloatingActionButton>(R.id.fab_add_transaction).setOnClickListener{
+        findViewById<ExtendedFloatingActionButton>(R.id.fab_add_transaction).setOnClickListener {
             val intent = Intent(this, TransactionInputActivity::class.java)
             activityTransactionAddResult.launch(intent)
         }
         loadTransactionFromDb(true)
     }
-private val activityTransactionAddResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
-    result ->
-    Log.d("debug", "result code ${result.resultCode}")
-    if(result.resultCode == Activity.RESULT_OK){
-        Toast.makeText(this, "result from ADDTRANSACTION", Toast.LENGTH_SHORT).show()
-        loadTransactionFromDb(false)
-    }
-}
+
+    private val activityTransactionAddResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            Log.d("debug", "result code ${result.resultCode}")
+            if (result.resultCode == Activity.RESULT_OK) {
+                Toast.makeText(this, "result from ADDTRANSACTION", Toast.LENGTH_SHORT).show()
+                loadTransactionFromDb(false)
+            }
+        }
+
     private fun loadTransactionFromDb(enableDelay: Boolean = false) {
         launch {
-            if(enableDelay){
+            if (enableDelay) {
                 delay(2000L)
             }
             val list = repository.selectAll()
@@ -83,6 +97,10 @@ private val activityTransactionAddResult = registerForActivityResult(ActivityRes
                 if (list.isEmpty()) {
                     displayEmptyTransaction()
                 } else {
+                    Log.d("DEBUG", "list tran")
+                    list.forEach {
+                        Log.d("DEBUG", it.toString())
+                    }
                     displayTransaction(list)
                 }
             }

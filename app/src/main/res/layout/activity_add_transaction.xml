@@ -85,4 +85,12 @@
             android:layout_marginTop="24dp"
             android:text="Save"
     />
+    <Button android:id="@+id/btn_tran_delete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            android:backgroundTint="@android:color/holo_red_light"
+            android:text="Delete"
+    />
 </LinearLayout>

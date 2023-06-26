@@ -18,13 +18,13 @@ enum class TransactionType(val value: String) {
     }
 }
 
-fun TransactionType.getTitle(): String = when(this){
+fun TransactionType.getTitle(): String = when (this) {
     TransactionType.ADD -> "add money"
     TransactionType.EXPENSE -> "expense"
     else -> ""
 }
 
-class TransactionModel (
+data class TransactionModel(
     val id: Int = 0,
     val cateId: Int? = null,
     val type: TransactionType,
@@ -33,4 +33,8 @@ class TransactionModel (
     val unit: String? = null,
     val date: String,
     val note: String? = null,
-): Serializable
+) : Serializable {
+    override fun toString(): String {
+        return "TransactionModel: id: $id, cateId: $cateId, type: $type, title: $title, money: $money, unit: $unit, date: $date, note: $note"
+    }
+}

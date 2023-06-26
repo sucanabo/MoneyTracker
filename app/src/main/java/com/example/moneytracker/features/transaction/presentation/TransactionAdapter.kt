@@ -1,10 +1,8 @@
 package com.example.moneytracker.features.transaction.presentation
 
-import android.content.Intent
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.OnLongClickListener
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
@@ -14,9 +12,11 @@ import com.example.moneytracker.data.MoneyTrackerRepository
 import com.example.moneytracker.features.transaction.data.TransactionModel
 import com.example.moneytracker.features.transaction.data.TransactionType
 
+typealias OnClickItem = (transaction: TransactionModel) -> Unit
 class TransactionAdapter(
     private var data: MutableList<TransactionModel> = mutableListOf(),
     private val repo: MoneyTrackerRepository,
+    private val onClickItem: OnClickItem,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     fun setData(list: MutableList<TransactionModel>) {
@@ -26,9 +26,7 @@ class TransactionAdapter(
     }
 
 
-    inner class TransactionViewHolder(view: View) : RecyclerView.ViewHolder(view),
-        View.OnClickListener,
-        OnLongClickListener {
+    inner class TransactionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         fun bind(data: TransactionModel) {
             itemView.let {
                 it.findViewById<TextView>(R.id.tvTransactionTitle).text = data.title
@@ -49,21 +47,12 @@ class TransactionAdapter(
                     }
                 }
                 it.findViewById<TextView>(R.id.tvTransactionUnit).text = data.unit
-                it.setOnClickListener(this@TransactionViewHolder)
+                it.isClickable = true
+                it.setOnClickListener{
+                    onClickItem.invoke(data)
+                }
             }
 
-        }
-
-        override fun onClick(p0: View?) {
-            val intent = Intent(itemView.context, TransactionInputActivity::class.java).apply {
-                putExtra("model", this@TransactionAdapter.data[adapterPosition])
-            }
-            itemView.context.startActivity(intent)
-        }
-
-        override fun onLongClick(p0: View?): Boolean {
-
-            return true
         }
     }
 
