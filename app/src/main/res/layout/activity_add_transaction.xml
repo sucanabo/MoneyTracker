@@ -31,6 +31,7 @@
     <studio.carbonylgroup.textfieldboxes.TextFieldBoxes
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:id="@+id/tfb_tran_amount"
             app:endIcon="@drawable/ic_money"
             app:labelText="Amount"
