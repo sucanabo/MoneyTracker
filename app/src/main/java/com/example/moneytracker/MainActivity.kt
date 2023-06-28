@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -21,6 +20,9 @@ import com.example.moneytracker.features.transaction.data.TransactionType
 import com.example.moneytracker.features.transaction.presentation.OnClickItem
 import com.example.moneytracker.features.transaction.presentation.TransactionAdapter
 import com.example.moneytracker.features.transaction.presentation.TransactionInputActivity
+import com.example.moneytracker.providers.SharePrefHelper
+import com.example.moneytracker.providers.SharePrefKey
+import com.example.moneytracker.providers.get
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import kotlinx.coroutines.*
 
@@ -44,6 +46,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         )
 
         initTransaction()
+        loadTrackingMoney()
     }
 
     override fun onDestroy() {
@@ -60,6 +63,18 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         }
     }
 
+    private fun loadTrackingMoney(){
+        SharePrefHelper.create(this).apply{
+            this?.get(SharePrefKey.MONEY_EXPENSE, 0f)?.let {
+                Log.d("DEBUG", "money expense load: $it")
+                findViewById<TextView>(R.id.tvExpense).text = "$ $it"
+            }
+            this?.get(SharePrefKey.MONEY_ADD, 0f)?.let {
+                Log.d("DEBUG", "money add load: $it")
+                findViewById<TextView>(R.id.tvAddMoney).text = "$ $it"
+            }
+        }
+    }
     private fun initTransaction() {
         val linearLayout = LinearLayoutManager(applicationContext)
         val decoration = DividerItemDecoration(this, linearLayout.orientation)
@@ -82,8 +97,8 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             Log.d("debug", "result code ${result.resultCode}")
             if (result.resultCode == Activity.RESULT_OK) {
-                Toast.makeText(this, "result from ADDTRANSACTION", Toast.LENGTH_SHORT).show()
                 loadTransactionFromDb(false)
+                loadTrackingMoney()
             }
         }
 

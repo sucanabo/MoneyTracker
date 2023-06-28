@@ -2,7 +2,7 @@
     <string name="app_name">MoneyTracker</string>
     <string name="expense">Expense</string>
     <string name="add_money">Add Money</string>
-    <string name="transaction_name">%s Name</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="transaction_name">Transaction Name</string>
 </resources>
+
+
