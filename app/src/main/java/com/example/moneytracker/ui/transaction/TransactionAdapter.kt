@@ -1,4 +1,4 @@
-package com.example.moneytracker.features.transaction.presentation
+package com.example.moneytracker.ui.transaction
 
 import android.graphics.Color
 import android.view.LayoutInflater
@@ -8,14 +8,12 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.moneytracker.R
-import com.example.moneytracker.data.MoneyTrackerRepository
-import com.example.moneytracker.features.transaction.data.TransactionModel
-import com.example.moneytracker.features.transaction.data.TransactionType
+import com.example.moneytracker.domain.model.TransactionModel
+import com.example.moneytracker.domain.model.TransactionType
 
 typealias OnClickItem = (transaction: TransactionModel) -> Unit
 class TransactionAdapter(
     private var data: MutableList<TransactionModel> = mutableListOf(),
-    private val repo: MoneyTrackerRepository,
     private val onClickItem: OnClickItem,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -29,7 +27,7 @@ class TransactionAdapter(
     inner class TransactionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         fun bind(data: TransactionModel) {
             itemView.let {
-                it.findViewById<TextView>(R.id.tvTransactionTitle).text = data.title
+//                it.findViewById<TextView>(R.id.tvTransactionTitle).text = data.title
                 it.findViewById<TextView>(R.id.tvTransactionDate).text = data.date
                 it.findViewById<TextView>(R.id.tvTransactionMoney).apply {
                     when (data.type) {

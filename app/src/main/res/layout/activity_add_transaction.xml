@@ -7,7 +7,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="16dp"
-        tools:context=".features.transaction.presentation.TransactionInputActivity"
+        tools:context=".ui.transaction.TransactionInputActivity"
 >
     <io.ghyeok.stickyswitch.widget.StickySwitch
             android:id="@+id/sw_tran"
@@ -24,8 +24,8 @@
             app:ss_leftIcon="@drawable/ic_remove"
             app:ss_rightIcon="@drawable/ic_add"
             app:ss_textColor="@color/black"
-            app:ss_selectedTextSize="14sp"
-            app:ss_textSize="12sp"
+            app:ss_selectedTextSize="16sp"
+            app:ss_textSize="14sp"
             app:ss_animationType="line"
     />
     <studio.carbonylgroup.textfieldboxes.TextFieldBoxes
@@ -41,6 +41,8 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/tfe_tran_amount"
                 android:inputType="numberDecimal"
+                android:imeOptions="actionNext"
+                android:nextFocusDown="@id/tfb_tran_title"
         />
     </studio.carbonylgroup.textfieldboxes.TextFieldBoxes>
     <studio.carbonylgroup.textfieldboxes.TextFieldBoxes
@@ -53,7 +55,12 @@
         <studio.carbonylgroup.textfieldboxes.ExtendedEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/tfe_tran_title"/>
+                android:id="@+id/tfe_tran_title"
+                android:maxLines="1"
+                android:inputType="text"
+                android:imeOptions="actionNext"
+                android:nextFocusDown="@id/tfb_tran_date"
+        />
     </studio.carbonylgroup.textfieldboxes.TextFieldBoxes>
     <studio.carbonylgroup.textfieldboxes.TextFieldBoxes
             android:layout_width="match_parent"
@@ -65,8 +72,15 @@
         <studio.carbonylgroup.textfieldboxes.ExtendedEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/tfe_tran_date"/>
+                android:id="@+id/tfe_tran_date"
+                android:hint="dd/mm/yyyy"
+                android:maxLines="1"
+                android:inputType="date"
+                android:imeOptions="actionNext"
+                android:nextFocusDown="@id/tfb_tran_note"
+        />
     </studio.carbonylgroup.textfieldboxes.TextFieldBoxes>
+
     <studio.carbonylgroup.textfieldboxes.TextFieldBoxes
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -78,7 +92,10 @@
         <studio.carbonylgroup.textfieldboxes.ExtendedEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/tfe_tran_note"/>
+                android:id="@+id/tfe_tran_note"
+                android:imeOptions="actionDone"
+                android:hint="Write more detail information for this transaction..."
+        />
     </studio.carbonylgroup.textfieldboxes.TextFieldBoxes>
     <Button android:id="@+id/btn_tran_save"
             android:layout_width="match_parent"

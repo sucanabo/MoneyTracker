@@ -3,6 +3,8 @@ package com.example.moneytracker.data
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.example.moneytracker.data.repositories.CategoryRepository
+import com.example.moneytracker.data.repositories.TransactionRepository
 
 class MoneyTrackerDb(context: Context?) : SQLiteOpenHelper(
     context,
@@ -10,6 +12,9 @@ class MoneyTrackerDb(context: Context?) : SQLiteOpenHelper(
     null,
     DbConfig.DB_VERSION
 ) {
+
+    val cateRepo: CategoryRepository  by lazy { CategoryRepository(this) }
+    val tranRepo: TransactionRepository  by lazy { TransactionRepository(this) }
     override fun onCreate(db: SQLiteDatabase?) {
         db?.execSQL(DbConfig.buildSchema())
     }

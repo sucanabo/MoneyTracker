@@ -14,15 +14,14 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.moneytracker.data.MoneyTrackerDb
-import com.example.moneytracker.data.MoneyTrackerRepository
-import com.example.moneytracker.features.transaction.data.TransactionModel
-import com.example.moneytracker.features.transaction.data.TransactionType
-import com.example.moneytracker.features.transaction.presentation.OnClickItem
-import com.example.moneytracker.features.transaction.presentation.TransactionAdapter
-import com.example.moneytracker.features.transaction.presentation.TransactionInputActivity
+import com.example.moneytracker.domain.model.TransactionModel
+import com.example.moneytracker.domain.model.TransactionType
 import com.example.moneytracker.providers.SharePrefHelper
 import com.example.moneytracker.providers.SharePrefKey
 import com.example.moneytracker.providers.get
+import com.example.moneytracker.ui.transaction.OnClickItem
+import com.example.moneytracker.ui.transaction.TransactionAdapter
+import com.example.moneytracker.ui.transaction.TransactionInputActivity
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import kotlinx.coroutines.*
 
@@ -31,19 +30,16 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     override val coroutineContext
         get() = job + Dispatchers.Main
 
-    private val repository: MoneyTrackerRepository by lazy {
-        MoneyTrackerRepository.create(db = MoneyTrackerDb(applicationContext))
-    }
+
+    private val database = MoneyTrackerDb(applicationContext)
+
 
     private lateinit var transactionAdapter: TransactionAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        transactionAdapter = TransactionAdapter(
-            repo = repository,
-            onClickItem = transactionItemClick
-        )
+        transactionAdapter = TransactionAdapter(onClickItem = transactionItemClick)
 
         initTransaction()
         loadTrackingMoney()
@@ -107,7 +103,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             if (enableDelay) {
                 delay(2000L)
             }
-            val list = repository.selectAll()
+            val list = database.tranRepo.selectAll()
             withContext(Dispatchers.Main) {
                 if (list.isEmpty()) {
                     displayEmptyTransaction()
@@ -148,7 +144,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
                         id = 0,
                         cateId = 0,
                         type = TransactionType.ADD,
-                        title = "Lanh luong",
                         date = "20-10-2023",
                         money = 30.2f,
                         unit = "Cash"
@@ -157,7 +152,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
                         id = 1,
                         cateId = 2,
                         type = TransactionType.EXPENSE,
-                        title = "Gym",
                         date = "22-10-2023",
                         money = 10.2f,
                         unit = "Cash"
@@ -166,7 +160,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
                         id = 2,
                         cateId = 0,
                         type = TransactionType.ADD,
-                        title = "AFF",
                         date = "01-10-2023",
                         money = 5f,
                         unit = "Cash"
@@ -175,7 +168,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
                         id = 3,
                         cateId = 3,
                         type = TransactionType.EXPENSE,
-                        title = "Buy Car",
                         date = "20-10-2023",
                         money = 3000.2f,
                         unit = "Cash"

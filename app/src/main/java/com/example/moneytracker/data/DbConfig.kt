@@ -1,6 +1,6 @@
 package com.example.moneytracker.data
 
-import com.example.moneytracker.features.transaction.data.TransactionEntity
+import com.example.moneytracker.data.entities.TransactionEntity
 
 class DbConfig {
     companion object {

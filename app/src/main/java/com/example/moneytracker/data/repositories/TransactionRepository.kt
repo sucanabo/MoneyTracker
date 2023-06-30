@@ -1,20 +1,17 @@
-package com.example.moneytracker.data
+package com.example.moneytracker.data.repositories
 
 import android.content.ContentValues
-import com.example.moneytracker.features.transaction.data.TransactionEntity
-import com.example.moneytracker.features.transaction.data.TransactionModel
-import com.example.moneytracker.features.transaction.data.TransactionType
+import com.example.moneytracker.data.MoneyTrackerDb
+import com.example.moneytracker.data.entities.TransactionEntity
+import com.example.moneytracker.domain.model.TransactionModel
+import com.example.moneytracker.domain.model.TransactionType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-enum class RepoKey {
-    TRANSACTION
-}
-
-open class MoneyTrackerRepository(private val database: MoneyTrackerDb) {
+class TransactionRepository(private val database: MoneyTrackerDb) {
 
     companion object {
-        fun create(db: MoneyTrackerDb): MoneyTrackerRepository = MoneyTrackerRepository(db)
+        fun create(db: MoneyTrackerDb): TransactionRepository = TransactionRepository(db)
     }
 
     suspend fun insert(model: TransactionModel):Unit = withContext(Dispatchers.IO) {
@@ -22,7 +19,6 @@ open class MoneyTrackerRepository(private val database: MoneyTrackerDb) {
         ContentValues().apply {
             put(TransactionEntity.COL_CATE_ID, model.cateId)
             put(TransactionEntity.COL_TYPE, model.type.value)
-            put(TransactionEntity.COL_TITLE, model.title)
             put(TransactionEntity.COL_DATE, model.date)
             put(TransactionEntity.COL_MONEY, model.money)
             put(TransactionEntity.COL_UNIT, model.unit)
@@ -40,7 +36,6 @@ open class MoneyTrackerRepository(private val database: MoneyTrackerDb) {
                 TransactionEntity.COL_ID,
                 TransactionEntity.COL_CATE_ID,
                 TransactionEntity.COL_TYPE,
-                TransactionEntity.COL_TITLE,
                 TransactionEntity.COL_DATE,
                 TransactionEntity.COL_MONEY,
                 TransactionEntity.COL_UNIT,
@@ -60,7 +55,6 @@ open class MoneyTrackerRepository(private val database: MoneyTrackerDb) {
                     val indexId = it.getColumnIndex(TransactionEntity.COL_ID)
                     val indexCateId = it.getColumnIndex(TransactionEntity.COL_CATE_ID)
                     val indexType = it.getColumnIndex(TransactionEntity.COL_TYPE)
-                    val indexTitle = it.getColumnIndex(TransactionEntity.COL_TITLE)
                     val indexDate = it.getColumnIndex(TransactionEntity.COL_DATE)
                     val indexMoney = it.getColumnIndex(TransactionEntity.COL_MONEY)
                     val indexUnit = it.getColumnIndex(TransactionEntity.COL_UNIT)
@@ -71,7 +65,6 @@ open class MoneyTrackerRepository(private val database: MoneyTrackerDb) {
                             id = it.getInt(indexId),
                             cateId = it.getInt(indexCateId),
                             type = TransactionType.convertFromString(it.getString(indexType)),
-                            title = it.getString(indexTitle),
                             date = it.getString(indexDate),
                             money = it.getFloat(indexMoney),
                             unit = it.getString(indexUnit),
@@ -99,7 +92,6 @@ open class MoneyTrackerRepository(private val database: MoneyTrackerDb) {
                 put(TransactionEntity.COL_ID, model.id)
                 put(TransactionEntity.COL_CATE_ID, model.cateId)
                 put(TransactionEntity.COL_TYPE, model.type.value)
-                put(TransactionEntity.COL_TITLE, model.title)
                 put(TransactionEntity.COL_DATE, model.date)
                 put(TransactionEntity.COL_MONEY, model.money)
                 put(TransactionEntity.COL_UNIT, model.unit)
