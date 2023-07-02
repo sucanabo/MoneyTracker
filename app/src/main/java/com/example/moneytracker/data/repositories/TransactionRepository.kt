@@ -86,6 +86,44 @@ class TransactionRepository(private val database: MoneyTrackerDb) {
         }
         result
     }
+    suspend fun selectById(id:Int) = withContext(Dispatchers.IO){
+        database.readableDatabase.query(
+            TransactionEntity.TABLE_NAME,
+            arrayOf(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+        )?.let { cursor ->
+          if(cursor.moveToFirst()){
+              val indexCateImg = cursor.getColumnIndex(CategoryEntity.COL_IMG)
+              val indexCateName = cursor.getColumnIndex(CategoryEntity.COL_NAME)
+              val indexId = cursor.getColumnIndex(TransactionEntity.COL_ID)
+              val indexCateId = cursor.getColumnIndex(TransactionEntity.COL_CATE_ID)
+              val indexType = cursor.getColumnIndex(TransactionEntity.COL_TYPE)
+              val indexDate = cursor.getColumnIndex(TransactionEntity.COL_DATE)
+              val indexMoney = cursor.getColumnIndex(TransactionEntity.COL_MONEY)
+              val indexUnit = cursor.getColumnIndex(TransactionEntity.COL_UNIT)
+              val indexNote = cursor.getColumnIndex(TransactionEntity.COL_NOTE)
+              return@withContext  TransactionModel(
+                  id = cursor.getInt(indexId),
+                  category = CategoryModel(
+                      id = cursor.getInt(indexCateId),
+                      name = cursor.getString(indexCateName),
+                      imgPath = cursor.getString(indexCateImg),
+                  ),
+                  type = TransactionType.convertFromString(cursor.getString(indexType)),
+                  date = cursor.getString(indexDate),
+                  money = cursor.getFloat(indexMoney),
+                  unit = cursor.getString(indexUnit),
+                  note = cursor.getString(indexNote),
+              )
+          }
+            return@withContext  null
+        }
+    }
 
     suspend fun delete(id: Int) = withContext(Dispatchers.IO) {
         database.writableDatabase.delete(

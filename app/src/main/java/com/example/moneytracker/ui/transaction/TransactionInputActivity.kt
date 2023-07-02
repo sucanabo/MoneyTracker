@@ -18,16 +18,15 @@ import com.example.moneytracker.domain.model.TransactionModel
 import com.example.moneytracker.domain.model.TransactionType
 import com.example.moneytracker.providers.*
 import io.ghyeok.stickyswitch.widget.StickySwitch
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import studio.carbonylgroup.textfieldboxes.ExtendedEditText
 import studio.carbonylgroup.textfieldboxes.TextFieldBoxes
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 
-class TransactionInputActivity : AppCompatActivity(), CoroutineScope, DatePickerDialog.OnDateSetListener {
+class TransactionInputActivity : AppCompatActivity(),
+    CoroutineScope,
+    DatePickerDialog.OnDateSetListener {
 
     private val job = Job()
     override val coroutineContext
@@ -44,6 +43,9 @@ class TransactionInputActivity : AppCompatActivity(), CoroutineScope, DatePicker
     private lateinit var tfDate: ExtendedEditText
     private lateinit var tfNote: ExtendedEditText
 
+
+    private var initData: TransactionModel? = null
+    var tranType: TransactionType = TransactionType.EXPENSE
     private var transactionDate: LocalDate = LocalDate.now()
     private var isAllFieldValidate: Boolean = false
 
@@ -51,7 +53,7 @@ class TransactionInputActivity : AppCompatActivity(), CoroutineScope, DatePicker
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_transaction)
 
-        var tranType: TransactionType = TransactionType.EXPENSE
+
 
         swTran = findViewById(R.id.sw_tran)
         tfAmount = findViewById(R.id.tfe_tran_amount)
@@ -62,34 +64,6 @@ class TransactionInputActivity : AppCompatActivity(), CoroutineScope, DatePicker
         btnDelete = findViewById(R.id.btn_tran_delete)
 
         findViewById<TextFieldBoxes>(R.id.tfb_tran_date)?.endIconImageButton?.setOnClickListener { showDatePicker() }
-
-        val initData = intent.getSerializableExtra(AppKeys.Argument.TRANSACTION_ID) as Int?
-        initData.let { model ->
-            if (model != null) {
-                tranType = model.type
-                runCatching {
-                    transactionDate = LocalDate.parse(model.date)
-                }
-                title = "Edit Transaction"
-                tfAmount.setText(model.money.toString())
-//                tfName.setText(model.title)
-                model.note?.let { noteTxt -> tfNote.setText(noteTxt) }
-                btnDelete.apply {
-                    visibility = View.VISIBLE
-                    setOnClickListener {
-                        launch {
-                            if (database.tranRepo.delete(model.id)) setResult(RESULT_OK) else setResult(0)
-                            calculateDeleteMoney(tranType, model.money)
-                            finish()
-                        }
-                    }
-                }
-                return@let
-            }
-            title = "New Transaction"
-        }
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
 
         swTran.apply {
             setDirection(
@@ -132,7 +106,8 @@ class TransactionInputActivity : AppCompatActivity(), CoroutineScope, DatePicker
                 val model = TransactionModel(
                     money = tfAmount.text.toString().toFloat(),
                     category = CategoryModel(
-
+                        id = 0,
+                        name = tfCate.text.toString()
                     ),
                     date = tfDate.text.toString(),
                     note = tfNote.text.let { if (it.isNullOrBlank()) null else it.toString() },
@@ -143,7 +118,7 @@ class TransactionInputActivity : AppCompatActivity(), CoroutineScope, DatePicker
                     if (initData != null) {
                         //Edit transaction
                         database.tranRepo.update(model)
-                        calculateEditMoney(tranType, initData.money, model.money)
+                        calculateEditMoney(tranType, initData!!.money, model.money)
                     } else {
                         //Add new transaction
                         database.tranRepo.insert(model)
@@ -159,6 +134,43 @@ class TransactionInputActivity : AppCompatActivity(), CoroutineScope, DatePicker
                 finish()
             }
 
+        }
+        (intent.getSerializableExtra(AppKeys.Argument.TRANSACTION_ID) as Int?)?.let {
+            initData(it)
+        }
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+
+
+    }
+
+    private fun initData(args: Int) {
+        args.let {
+            title = "Edit Transaction"
+            // Get data by Transaction ID
+            launch {
+                withContext(Dispatchers.Main){
+                    database.tranRepo.selectById(args)
+                }?.let {transaction ->
+                    initData = transaction
+                    tranType = transaction.type
+                    runCatching { transactionDate = LocalDate.parse(transaction.date) }
+                    tfAmount.setText(transaction.money.toString())
+                    tfCate.setText(transaction.category.name)
+                    transaction.note?.let { note -> tfNote.setText(note) }
+                    btnDelete.apply {
+                        visibility = View.VISIBLE
+                        setOnClickListener {
+                            launch {
+                                if (database.tranRepo.delete(transaction.id)) setResult(RESULT_OK) else setResult(0)
+                                calculateDeleteMoney(tranType, transaction.money)
+                                finish()
+                            }
+                        }
+                    }
+                }
+            }
+            title = "New Transaction"
         }
     }
 
