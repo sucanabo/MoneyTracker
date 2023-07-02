@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.moneytracker.R
 import com.example.moneytracker.data.MoneyTrackerDb
+import com.example.moneytracker.data.repositories.TransactionRepository
 import com.example.moneytracker.domain.model.CategoryModel
 import com.example.moneytracker.domain.model.TransactionModel
 import com.example.moneytracker.domain.model.TransactionType
@@ -32,7 +33,9 @@ class TransactionInputActivity : AppCompatActivity(),
     override val coroutineContext
         get() = job + Dispatchers.Main
 
-    private val database = MoneyTrackerDb(applicationContext)
+    private val tranRepo by lazy {
+        TransactionRepository.create(MoneyTrackerDb(applicationContext))
+    }
 
     private lateinit var btnDelete: Button
     private lateinit var btnSave: Button
@@ -117,11 +120,11 @@ class TransactionInputActivity : AppCompatActivity(),
                 try {
                     if (initData != null) {
                         //Edit transaction
-                        database.tranRepo.update(model)
+                        tranRepo.update(model)
                         calculateEditMoney(tranType, initData!!.money, model.money)
                     } else {
                         //Add new transaction
-                        database.tranRepo.insert(model)
+                        tranRepo.insert(model)
                         calculateAddMoney(tranType, model.money)
 
                     }
@@ -150,7 +153,7 @@ class TransactionInputActivity : AppCompatActivity(),
             // Get data by Transaction ID
             launch {
                 withContext(Dispatchers.Main){
-                    database.tranRepo.selectById(args)
+                    tranRepo.selectById(args)
                 }?.let {transaction ->
                     initData = transaction
                     tranType = transaction.type
@@ -162,7 +165,7 @@ class TransactionInputActivity : AppCompatActivity(),
                         visibility = View.VISIBLE
                         setOnClickListener {
                             launch {
-                                if (database.tranRepo.delete(transaction.id)) setResult(RESULT_OK) else setResult(0)
+                                if (tranRepo.delete(transaction.id)) setResult(RESULT_OK) else setResult(0)
                                 calculateDeleteMoney(tranType, transaction.money)
                                 finish()
                             }

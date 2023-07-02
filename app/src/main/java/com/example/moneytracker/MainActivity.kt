@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.moneytracker.data.MoneyTrackerDb
+import com.example.moneytracker.data.repositories.TransactionRepository
 import com.example.moneytracker.domain.model.TransactionModel
 import com.example.moneytracker.providers.AppKeys
 import com.example.moneytracker.providers.SharePrefHelper
@@ -29,9 +30,9 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     override val coroutineContext
         get() = job + Dispatchers.Main
 
-
-    private val database = MoneyTrackerDb(applicationContext)
-
+    private val tranRepo: TransactionRepository by lazy {
+        TransactionRepository.create(MoneyTrackerDb(applicationContext))
+    }
 
     private lateinit var transactionAdapter: TransactionAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,7 +104,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             if (enableDelay) {
                 delay(2000L)
             }
-            val tranList = database.tranRepo.select()
+            val tranList = tranRepo.select()
             withContext(Dispatchers.Main) {
                 if (tranList.isEmpty()) {
                     displayEmptyTransaction()
