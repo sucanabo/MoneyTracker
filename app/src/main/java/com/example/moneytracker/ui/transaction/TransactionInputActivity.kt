@@ -13,12 +13,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.moneytracker.R
 import com.example.moneytracker.data.MoneyTrackerDb
+import com.example.moneytracker.domain.model.CategoryModel
 import com.example.moneytracker.domain.model.TransactionModel
 import com.example.moneytracker.domain.model.TransactionType
-import com.example.moneytracker.providers.SharePrefHelper
-import com.example.moneytracker.providers.SharePrefKey
-import com.example.moneytracker.providers.get
-import com.example.moneytracker.providers.put
+import com.example.moneytracker.providers.*
 import io.ghyeok.stickyswitch.widget.StickySwitch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -65,7 +63,7 @@ class TransactionInputActivity : AppCompatActivity(), CoroutineScope, DatePicker
 
         findViewById<TextFieldBoxes>(R.id.tfb_tran_date)?.endIconImageButton?.setOnClickListener { showDatePicker() }
 
-        val initData = intent.getSerializableExtra("model") as TransactionModel?
+        val initData = intent.getSerializableExtra(AppKeys.Argument.TRANSACTION_ID) as Int?
         initData.let { model ->
             if (model != null) {
                 tranType = model.type
@@ -133,7 +131,9 @@ class TransactionInputActivity : AppCompatActivity(), CoroutineScope, DatePicker
             launch {
                 val model = TransactionModel(
                     money = tfAmount.text.toString().toFloat(),
-//                    title = tfName.text.toString(),
+                    category = CategoryModel(
+
+                    ),
                     date = tfDate.text.toString(),
                     note = tfNote.text.let { if (it.isNullOrBlank()) null else it.toString() },
                     type = tranType
@@ -197,14 +197,14 @@ class TransactionInputActivity : AppCompatActivity(), CoroutineScope, DatePicker
     private fun calculateAddMoney(type: TransactionType, money: Float) {
         when (type) {
             TransactionType.EXPENSE -> {
-                SharePrefHelper.create(this)?.get(SharePrefKey.MONEY_EXPENSE, 0f)?.also {
-                    SharePrefHelper.create(this)?.put(SharePrefKey.MONEY_EXPENSE, (it + money))
+                SharePrefHelper.create(this)?.get(AppKeys.SharePref.MONEY_EXPENSE, 0f)?.also {
+                    SharePrefHelper.create(this)?.put(AppKeys.SharePref.MONEY_EXPENSE, (it + money))
                 }
             }
 
             TransactionType.ADD -> {
-                SharePrefHelper.create(this)?.get(SharePrefKey.MONEY_ADD, 0f)?.also {
-                    SharePrefHelper.create(this)?.put(SharePrefKey.MONEY_ADD, (it + money))
+                SharePrefHelper.create(this)?.get(AppKeys.SharePref.MONEY_ADD, 0f)?.also {
+                    SharePrefHelper.create(this)?.put(AppKeys.SharePref.MONEY_ADD, (it + money))
                 }
             }
 
@@ -217,14 +217,14 @@ class TransactionInputActivity : AppCompatActivity(), CoroutineScope, DatePicker
     private fun calculateDeleteMoney(type: TransactionType, money: Float) {
         when (type) {
             TransactionType.EXPENSE -> {
-                SharePrefHelper.create(this)?.get(SharePrefKey.MONEY_EXPENSE, 0f)?.also {
-                    SharePrefHelper.create(this)?.put(SharePrefKey.MONEY_EXPENSE, (it - money))
+                SharePrefHelper.create(this)?.get(AppKeys.SharePref.MONEY_EXPENSE, 0f)?.also {
+                    SharePrefHelper.create(this)?.put(AppKeys.SharePref.MONEY_EXPENSE, (it - money))
                 }
             }
 
             TransactionType.ADD -> {
-                SharePrefHelper.create(this)?.get(SharePrefKey.MONEY_ADD, 0f)?.also {
-                    SharePrefHelper.create(this)?.put(SharePrefKey.MONEY_ADD, (it - money))
+                SharePrefHelper.create(this)?.get(AppKeys.SharePref.MONEY_ADD, 0f)?.also {
+                    SharePrefHelper.create(this)?.put(AppKeys.SharePref.MONEY_ADD, (it - money))
                 }
             }
 
@@ -237,14 +237,14 @@ class TransactionInputActivity : AppCompatActivity(), CoroutineScope, DatePicker
     private fun calculateEditMoney(type: TransactionType, oldMoney: Float, money: Float) {
         when (type) {
             TransactionType.EXPENSE -> {
-                SharePrefHelper.create(this)?.get(SharePrefKey.MONEY_EXPENSE, 0f)?.also {
-                    SharePrefHelper.create(this)?.put(SharePrefKey.MONEY_EXPENSE, (it + money - oldMoney))
+                SharePrefHelper.create(this)?.get(AppKeys.SharePref.MONEY_EXPENSE, 0f)?.also {
+                    SharePrefHelper.create(this)?.put(AppKeys.SharePref.MONEY_EXPENSE, (it + money - oldMoney))
                 }
             }
 
             TransactionType.ADD -> {
-                SharePrefHelper.create(this)?.get(SharePrefKey.MONEY_ADD, 0f)?.also {
-                    SharePrefHelper.create(this)?.put(SharePrefKey.MONEY_ADD, (it + money - oldMoney))
+                SharePrefHelper.create(this)?.get(AppKeys.SharePref.MONEY_ADD, 0f)?.also {
+                    SharePrefHelper.create(this)?.put(AppKeys.SharePref.MONEY_ADD, (it + money - oldMoney))
                 }
             }
 

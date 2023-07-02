@@ -4,4 +4,6 @@ class CategoryModel(
     val id: Int = 0,
     val name: String,
     val imgPath: String?
-)
+){
+    override fun toString() = "CategoryModel<$id>\nname: $name, img: $imgPath"
+}

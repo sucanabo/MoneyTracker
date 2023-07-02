@@ -3,11 +3,6 @@ package com.example.moneytracker.providers
 import android.content.Context
 import android.content.SharedPreferences
 
-object SharePrefKey{
-    const val MONEY_ADD = "money_add"
-    const val MONEY_EXPENSE = "money_expense"
-}
-
 class SharePrefHelper {
     companion object {
         private const val SHARE_PREF_NAME = "com.example.moneytracker"

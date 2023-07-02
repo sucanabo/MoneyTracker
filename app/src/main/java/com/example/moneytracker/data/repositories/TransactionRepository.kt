@@ -2,7 +2,9 @@ package com.example.moneytracker.data.repositories
 
 import android.content.ContentValues
 import com.example.moneytracker.data.MoneyTrackerDb
+import com.example.moneytracker.data.entities.CategoryEntity
 import com.example.moneytracker.data.entities.TransactionEntity
+import com.example.moneytracker.domain.model.CategoryModel
 import com.example.moneytracker.domain.model.TransactionModel
 import com.example.moneytracker.domain.model.TransactionType
 import kotlinx.coroutines.Dispatchers
@@ -14,10 +16,10 @@ class TransactionRepository(private val database: MoneyTrackerDb) {
         fun create(db: MoneyTrackerDb): TransactionRepository = TransactionRepository(db)
     }
 
-    suspend fun insert(model: TransactionModel):Unit = withContext(Dispatchers.IO) {
+    suspend fun insert(model: TransactionModel): Unit = withContext(Dispatchers.IO) {
         val db = database.writableDatabase
         ContentValues().apply {
-            put(TransactionEntity.COL_CATE_ID, model.cateId)
+            put(TransactionEntity.COL_CATE_ID, model.category.id)
             put(TransactionEntity.COL_TYPE, model.type.value)
             put(TransactionEntity.COL_DATE, model.date)
             put(TransactionEntity.COL_MONEY, model.money)
@@ -28,11 +30,13 @@ class TransactionRepository(private val database: MoneyTrackerDb) {
         }
     }
 
-    suspend fun selectAll() = withContext(Dispatchers.IO) {
+    suspend fun select(limit: Int? = null) = withContext(Dispatchers.IO) {
         val db = database.readableDatabase
         val cursor = db.query(
             TransactionEntity.TABLE_NAME,
             arrayOf(
+                CategoryEntity.COL_IMG,
+                CategoryEntity.COL_NAME,
                 TransactionEntity.COL_ID,
                 TransactionEntity.COL_CATE_ID,
                 TransactionEntity.COL_TYPE,
@@ -41,17 +45,19 @@ class TransactionRepository(private val database: MoneyTrackerDb) {
                 TransactionEntity.COL_UNIT,
                 TransactionEntity.COL_NOTE,
             ),
+            "${TransactionEntity.TABLE_NAME}.${TransactionEntity.COL_CATE_ID} = ?",
+            arrayOf("${CategoryEntity.TABLE_NAME}.${CategoryEntity.COL_ID}"),
             null,
             null,
-            null,
-            null,
-            null,
-            null,
+            "${TransactionEntity.COL_DATE} DESC",
+            limit.toString(),
         )
         val result = mutableListOf<TransactionModel>()
         cursor.let {
             if (cursor.moveToFirst()) {
                 do {
+                    val indexCateImg = it.getColumnIndex(CategoryEntity.COL_IMG)
+                    val indexCateName = it.getColumnIndex(CategoryEntity.COL_NAME)
                     val indexId = it.getColumnIndex(TransactionEntity.COL_ID)
                     val indexCateId = it.getColumnIndex(TransactionEntity.COL_CATE_ID)
                     val indexType = it.getColumnIndex(TransactionEntity.COL_TYPE)
@@ -63,7 +69,11 @@ class TransactionRepository(private val database: MoneyTrackerDb) {
                     result.add(
                         TransactionModel(
                             id = it.getInt(indexId),
-                            cateId = it.getInt(indexCateId),
+                            category = CategoryModel(
+                                id = it.getInt(indexCateId),
+                                name = it.getString(indexCateName),
+                                imgPath = it.getString(indexCateImg),
+                            ),
                             type = TransactionType.convertFromString(it.getString(indexType)),
                             date = it.getString(indexDate),
                             money = it.getFloat(indexMoney),
@@ -90,7 +100,7 @@ class TransactionRepository(private val database: MoneyTrackerDb) {
             TransactionEntity.TABLE_NAME,
             ContentValues().apply {
                 put(TransactionEntity.COL_ID, model.id)
-                put(TransactionEntity.COL_CATE_ID, model.cateId)
+                put(TransactionEntity.COL_CATE_ID, model.category.id)
                 put(TransactionEntity.COL_TYPE, model.type.value)
                 put(TransactionEntity.COL_DATE, model.date)
                 put(TransactionEntity.COL_MONEY, model.money)

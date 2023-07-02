@@ -11,7 +11,7 @@ import com.example.moneytracker.R
 import com.example.moneytracker.domain.model.TransactionModel
 import com.example.moneytracker.domain.model.TransactionType
 
-typealias OnClickItem = (transaction: TransactionModel) -> Unit
+typealias OnClickItem = (transactionId: Int) -> Unit
 class TransactionAdapter(
     private var data: MutableList<TransactionModel> = mutableListOf(),
     private val onClickItem: OnClickItem,
@@ -27,7 +27,7 @@ class TransactionAdapter(
     inner class TransactionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         fun bind(data: TransactionModel) {
             itemView.let {
-//                it.findViewById<TextView>(R.id.tvTransactionTitle).text = data.title
+                it.findViewById<TextView>(R.id.tvTransactionTitle).text = data.category.name
                 it.findViewById<TextView>(R.id.tvTransactionDate).text = data.date
                 it.findViewById<TextView>(R.id.tvTransactionMoney).apply {
                     when (data.type) {
@@ -47,7 +47,7 @@ class TransactionAdapter(
                 it.findViewById<TextView>(R.id.tvTransactionUnit).text = data.unit
                 it.isClickable = true
                 it.setOnClickListener{
-                    onClickItem.invoke(data)
+                    onClickItem.invoke(data.id)
                 }
             }
 

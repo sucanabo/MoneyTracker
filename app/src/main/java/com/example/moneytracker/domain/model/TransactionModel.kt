@@ -26,14 +26,15 @@ fun TransactionType.getTitle(): String = when (this) {
 
 data class TransactionModel(
     val id: Int = 0,
-    val cateId: Int? = null,
+    val category: CategoryModel,
     val type: TransactionType,
     val money: Float,
     val unit: String? = null,
     val date: String,
     val note: String? = null,
 ) : Serializable {
+
     override fun toString(): String {
-        return "TransactionModel: id: $id, cateId: $cateId, type: $type, money: $money, unit: $unit, date: $date, note: $note"
+        return "TransactionModel<$id>\ncateId: $category\n, type: $type, money: $money, unit: $unit, date: $date, note: $note"
     }
 }

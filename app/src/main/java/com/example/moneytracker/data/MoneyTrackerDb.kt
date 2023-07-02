@@ -13,14 +13,16 @@ class MoneyTrackerDb(context: Context?) : SQLiteOpenHelper(
     DbConfig.DB_VERSION
 ) {
 
-    val cateRepo: CategoryRepository  by lazy { CategoryRepository(this) }
-    val tranRepo: TransactionRepository  by lazy { TransactionRepository(this) }
+    val cateRepo: CategoryRepository  by lazy { CategoryRepository.create(this) }
+    val tranRepo: TransactionRepository  by lazy { TransactionRepository.create(this) }
     override fun onCreate(db: SQLiteDatabase?) {
-        db?.execSQL(DbConfig.buildSchema())
+        db?.execSQL(DbConfig.buildCategorySchema())
+        db?.execSQL(DbConfig.buildTransactionSchema())
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        db?.execSQL(DbConfig.dropAllTable())
-        db?.execSQL(DbConfig.buildSchema())
+        db?.execSQL(DbConfig.dropTransactionTable())
+        db?.execSQL(DbConfig.dropCategoryTable())
+        onCreate(db)
     }
 }
